@@ -7,10 +7,13 @@ image:
 
 service:
   type: NodePort
-  port: 80
+  port: 5000
   targetPort: 5000
   nodePort: 30080
 
+probes:
+  path: /
+  port: 5000
 resources:
   limits:
     cpu: 100m
