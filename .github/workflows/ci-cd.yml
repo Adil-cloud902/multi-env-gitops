@@ -1,34 +1,60 @@
-name: CI/CD Pipeline - PHP App
+name: CI/CD Pipeline - Flask App (DevSecOps)
 
 on:
   push:
-    branches: ["main"]  # le pipeline s'exécute à chaque push sur la branche "main"
+    branches: ["main"]  # Le pipeline s'exécute à chaque push sur la branche principale
 
 jobs:
-  build-test-deploy:
-    runs-on: ubuntu-latest  # environnement Linux
+  build-test-security-push:
+    runs-on: ubuntu-latest
 
     steps:
       # 1️⃣ Récupérer le code du dépôt
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Lancer le linter PHP pour vérifier les erreurs de syntaxe
-      - name: PHP Syntax Check
-        run: find . -name "*.php" -exec php -l {} \;
+      # 2️⃣ Configurer Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-      # 3️⃣ Construire l’image Docker
+      # 3️⃣ Installer les dépendances
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4️⃣ Test syntaxique et sécurité du code Python
+      - name: Code quality and security tests
+        run: |
+          pip install flake8 bandit safety
+          echo "➡️ Lancement du linter (flake8)..."
+          flake8 app.py || true
+          echo "➡️ Analyse de sécurité (Bandit)..."
+          bandit -r . || true
+          echo "➡️ Vérification des dépendances (Safety)..."
+          safety check || true
+
+      # 5️⃣ Scanner la sécurité de l’image Docker (Trivy)
+      - name: Run Docker security scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "${{ secrets.DOCKER_USERNAME }}/flask-app:latest"
+        continue-on-error: true
+
+      # 6️⃣ Construire l’image Docker
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/php-app:${{ github.run_number }} ./app
-          docker tag ${{ secrets.DOCKER_USERNAME }}/php-app:${{ github.run_number }} ${{ secrets.DOCKER_USERNAME }}/php-app:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.run_number }} .
+          docker tag ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.run_number }} ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
 
-      # 4️⃣ Connexion à Docker Hub (via secrets GitHub)
+      # 7️⃣ Connexion à Docker Hub
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # 5️⃣ Pousser l’image Docker
+      # 8️⃣ Pousser l’image Docker vers Docker Hub
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/php-app:${{ github.run_number }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/php-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.run_number }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
