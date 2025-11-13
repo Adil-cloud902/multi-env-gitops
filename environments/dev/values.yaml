@@ -1,4 +1,4 @@
-# Dev environment configuration
+# Dev environment configuration 
 replicaCount: 1
 image:
   repository: docker.io/adil902/flask-app
