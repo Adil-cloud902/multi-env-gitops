@@ -39,6 +39,7 @@ jobs:
       # 1️⃣ Build Docker image
       - name: Build Docker image
         run: |
+          cd mini-app
           docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.run_number }} .
           docker tag ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.run_number }} ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
       
