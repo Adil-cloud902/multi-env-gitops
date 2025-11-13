@@ -36,25 +36,29 @@ jobs:
           echo "➡️ Vérification des dépendances (Safety)..."
           safety check || true
 
-      # 5️⃣ Scanner la sécurité de l’image Docker (Trivy)
+      # 1️⃣ Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.run_number }} .
+          docker tag ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.run_number }} ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
+      
+      # 2️⃣ Login to DockerHub
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      
+      # 3️⃣ Run Trivy security scan
       - name: Run Docker security scan (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: "${{ secrets.DOCKER_USERNAME }}/flask-app:latest"
         continue-on-error: true
-
-      # 6️⃣ Construire l’image Docker
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.run_number }} .
-          docker tag ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.run_number }} ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
-
-      # 7️⃣ Connexion à Docker Hub
-      - name: Login to DockerHub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      # 8️⃣ Pousser l’image Docker vers Docker Hub
+      
+      # 4️⃣ Push Docker image
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.run_number }}
           docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
+
+
+          
+
