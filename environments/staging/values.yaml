@@ -8,8 +8,12 @@ image:
 service:
   type: NodePort
   port: 5000
-  targetPort: 80
+  targetPort: 5000
   nodePort: 30081
+
+probes:
+  path: /
+  port: 5000
 
 resources:
   limits:
