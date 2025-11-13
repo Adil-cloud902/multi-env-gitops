@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/gajjarvatsall/multi-env-gitops
+    repoURL: https://github.com/Adil-cloud902/multi-env-gitops
     targetRevision: HEAD
     path: helm/my-app
     helm:

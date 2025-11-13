@@ -1,14 +1,14 @@
 # Dev environment configuration
 replicaCount: 1
 image:
-  repository: docker.io/adil902/php-app
+  repository: docker.io/adil902/flask-app
   tag: "latest"
   pullPolicy: IfNotPresent
 
 service:
   type: NodePort
   port: 80
-  targetPort: 80
+  targetPort: 8080
   nodePort: 30080
 
 resources:
