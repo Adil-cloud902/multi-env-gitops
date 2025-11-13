@@ -1,7 +1,7 @@
 # Staging environment configuration
 replicaCount: 2
 image:
-  repository: docker.io/gajjarvatsall/multi-env-cicd
+  repository: docker.io/adil902/flask-app
   tag: "latest"
   pullPolicy: IfNotPresent
 
