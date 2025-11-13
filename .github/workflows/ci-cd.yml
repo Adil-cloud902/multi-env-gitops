@@ -2,7 +2,7 @@ name: CI/CD Pipeline - Flask App (DevSecOps)
 
 on:
   push:
-    branches: ["main"]  # Le pipeline s'exécute à chaque push sur la branche principale
+    branches: ["test"]  # Le pipeline s'exécute à chaque push sur la branche principale
 
 jobs:
   build-test-security-push:
